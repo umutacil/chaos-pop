@@ -1,14 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { GameEvent, RoomState } from '../../shared/types';
+import { GAME_CATALOG, GameEvent, RoomState } from '../../shared/types';
 import { ComicFeed } from './components/ComicFeed';
 import { GameIntroOverlay } from './components/GameIntroOverlay';
 import { HomeLobby } from './components/HomeLobby';
 import { PodiumScreen } from './components/PodiumScreen';
 import { RoundEndOverlay } from './components/RoundEndOverlay';
+import { Arena3DView } from './games/Arena3DView';
 import { BombTag3D } from './games/BombTag3D';
+import { Platform2DView } from './games/Platform2DView';
+import { Shooter3DView } from './games/Shooter3DView';
 import { SmashBrawler2D } from './games/SmashBrawler2D';
 import { SticksAndStones3D } from './games/SticksAndStones3D';
+import { TopDown2DView } from './games/TopDown2DView';
 import { sfx } from './utils/sound';
 import { Gamepad2, Volume2, VolumeX } from 'lucide-react';
 
@@ -169,7 +173,7 @@ export function App() {
 
       {room && room.phase === 'intro' && <GameIntroOverlay room={room} isMobile={showTouch} />}
 
-      {room && room.phase === 'playing' && (
+      {room && room.phase === 'playing' && room.currentGame && (
         <>
           <ComicFeed events={events} />
           {room.currentGame === 'sticks_and_stones' && (
@@ -192,6 +196,42 @@ export function App() {
           )}
           {room.currentGame === 'bomb_tag' && (
             <BombTag3D
+              room={room}
+              myId={myId}
+              snapshot={snapshot}
+              showTouch={showTouch}
+              onSendInput={(inp) => emit('game:input', inp)}
+            />
+          )}
+          {GAME_CATALOG[room.currentGame].engine === 'topdown2d' && (
+            <TopDown2DView
+              room={room}
+              myId={myId}
+              snapshot={snapshot}
+              showTouch={showTouch}
+              onSendInput={(inp) => emit('game:input', inp)}
+            />
+          )}
+          {GAME_CATALOG[room.currentGame].engine === 'platform2d' && (
+            <Platform2DView
+              room={room}
+              myId={myId}
+              snapshot={snapshot}
+              showTouch={showTouch}
+              onSendInput={(inp) => emit('game:input', inp)}
+            />
+          )}
+          {GAME_CATALOG[room.currentGame].engine === 'arena3d' && (
+            <Arena3DView
+              room={room}
+              myId={myId}
+              snapshot={snapshot}
+              showTouch={showTouch}
+              onSendInput={(inp) => emit('game:input', inp)}
+            />
+          )}
+          {GAME_CATALOG[room.currentGame].engine === 'shooter3d' && (
+            <Shooter3DView
               room={room}
               myId={myId}
               snapshot={snapshot}

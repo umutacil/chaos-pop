@@ -9,9 +9,13 @@ import {
   TeamMode,
 } from '../../shared/types.js';
 import { BaseGame, getDurationSeconds, uid } from './games/BaseGame.js';
+import { Arena3DGame } from './games/Arena3DGame.js';
 import { BombTagGame } from './games/BombTagGame.js';
+import { Platform2DGame } from './games/Platform2DGame.js';
+import { Shooter3DGame } from './games/Shooter3DGame.js';
 import { SmashBrawlerGame } from './games/SmashBrawlerGame.js';
 import { SticksAndStonesGame } from './games/SticksAndStonesGame.js';
+import { TopDown2DGame } from './games/TopDown2DGame.js';
 
 const BOT_NAMES = ['WarioBot', 'BonkBot', 'YeetBot', 'SplatBot', 'KaboomBot', 'TurboBot', 'GremlinBot'];
 const BOT_COLORS = ['#FF3B5C', '#00E5FF', '#FFD600', '#A855F7', '#22C55E', '#FF6B00', '#EC4899'];
@@ -335,28 +339,42 @@ export class RoomManager {
     if (!room || room.state.phase !== 'intro') return;
 
     const preset = room.state.settings.durationPreset;
+    const engine = GAME_CATALOG[gameId].engine;
     let duration = 90;
+    const ctx = {
+      players: room.state.players,
+      teamMode,
+      durationSeconds: duration,
+    };
+
     if (gameId === 'sticks_and_stones') {
       duration = getDurationSeconds(preset, 'sticks');
-      room.activeGame = new SticksAndStonesGame({
-        players: room.state.players,
-        teamMode,
-        durationSeconds: duration,
-      });
+      ctx.durationSeconds = duration;
+      room.activeGame = new SticksAndStonesGame(ctx);
     } else if (gameId === 'smash_brawler') {
       duration = getDurationSeconds(preset, 'smash');
-      room.activeGame = new SmashBrawlerGame({
-        players: room.state.players,
-        teamMode,
-        durationSeconds: duration,
-      });
-    } else {
+      ctx.durationSeconds = duration;
+      room.activeGame = new SmashBrawlerGame(ctx);
+    } else if (gameId === 'bomb_tag') {
       duration = getDurationSeconds(preset, 'bomb');
-      room.activeGame = new BombTagGame({
-        players: room.state.players,
-        teamMode,
-        durationSeconds: duration,
-      });
+      ctx.durationSeconds = duration;
+      room.activeGame = new BombTagGame(ctx);
+    } else if (engine === 'topdown2d') {
+      duration = getDurationSeconds(preset, 'bomb');
+      ctx.durationSeconds = duration;
+      room.activeGame = new TopDown2DGame(gameId, ctx);
+    } else if (engine === 'platform2d') {
+      duration = getDurationSeconds(preset, 'smash');
+      ctx.durationSeconds = duration;
+      room.activeGame = new Platform2DGame(gameId, ctx);
+    } else if (engine === 'arena3d') {
+      duration = getDurationSeconds(preset, 'bomb');
+      ctx.durationSeconds = duration;
+      room.activeGame = new Arena3DGame(gameId, ctx);
+    } else {
+      duration = getDurationSeconds(preset, 'sticks');
+      ctx.durationSeconds = duration;
+      room.activeGame = new Shooter3DGame(gameId, ctx);
     }
 
     room.state.phase = 'playing';

@@ -525,10 +525,45 @@ export const HomeLobby: React.FC<Props> = ({
 
           {/* Enabled Games + Quick Jump */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#cbd5e1', marginBottom: 6 }}>
-              MINIGAME POOL (OR LAUNCH ONE NOW)
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, gap: 6, flexWrap: 'wrap' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#cbd5e1' }}>
+                MINIGAMES ({room.settings.enabledGames.length}/{Object.keys(GAME_CATALOG).length})
+              </div>
+              {isHost && (
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateSettings({ enabledGames: Object.keys(GAME_CATALOG) as GameId[] })}
+                    style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 6, border: '1px solid #000', background: '#FFD600', color: '#000', cursor: 'pointer' }}
+                  >
+                    ALL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdateSettings({
+                        enabledGames: (Object.keys(GAME_CATALOG) as GameId[]).filter((g) => GAME_CATALOG[g].dimension === '2D'),
+                      })
+                    }
+                    style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 6, border: '1px solid #000', background: '#A855F7', color: '#fff', cursor: 'pointer' }}
+                  >
+                    2D ONLY
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdateSettings({
+                        enabledGames: (Object.keys(GAME_CATALOG) as GameId[]).filter((g) => GAME_CATALOG[g].dimension === '3D'),
+                      })
+                    }
+                    style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 6, border: '1px solid #000', background: '#00E5FF', color: '#000', cursor: 'pointer' }}
+                  >
+                    3D ONLY
+                  </button>
+                </div>
+              )}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 240, overflowY: 'auto', paddingRight: 4 }}>
               {(Object.keys(GAME_CATALOG) as GameId[]).map((gid) => {
                 const g = GAME_CATALOG[gid];
                 const enabled = room.settings.enabledGames.includes(gid);
@@ -542,7 +577,7 @@ export const HomeLobby: React.FC<Props> = ({
                       background: '#140C24',
                       border: '2px solid #000',
                       borderRadius: 10,
-                      padding: '8px 10px',
+                      padding: '6px 10px',
                       gap: 8,
                     }}
                   >
@@ -570,7 +605,7 @@ export const HomeLobby: React.FC<Props> = ({
                       >
                         {g.dimension}
                       </span>
-                      <span style={{ fontWeight: 700, fontSize: 14 }}>{g.title}</span>
+                      <span style={{ fontWeight: 700, fontSize: 13 }}>{g.title}</span>
                     </label>
                     {isHost && (
                       <button
